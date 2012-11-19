@@ -1,0 +1,7 @@
+void main(){
+	
+	output >> 1111;
+	output >> 1111.0;
+	
+	return;
+}

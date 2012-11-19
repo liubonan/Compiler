@@ -1,0 +1,12 @@
+
+
+void main(){
+	small a;
+	big b;
+	a = 15;
+	
+	b = toBig(a);
+	
+	output >> b;
+	
+}

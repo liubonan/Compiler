@@ -1,0 +1,18 @@
+big func(big b){
+	b = b + 1.0;
+	return b;
+}
+
+void main(){
+
+	file f;
+	big a[2];
+	f = "./input_file.bdf";
+	infileopen f;
+	input << a[1] << f;
+	infileclose f;	
+	output >> a[1];
+	a[0] = func(a[1]);
+	output >> a[0];
+	return;
+}

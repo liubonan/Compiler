@@ -1,0 +1,59 @@
+big gcd(big a, big b){
+  bool c;
+  big temp;
+  small x;
+  x = 1;
+  c =true;
+  if(a>b){
+     temp = a;
+	 a=b;
+	 b=temp;
+  };
+  for(c=true;c == true;x=x+1){
+   if(a%b==0.00){
+      c=false;
+      return temp;
+    };
+    temp=a%b;
+    a=b;
+    b=temp;  
+  };
+  return temp;
+}
+
+void main(){
+  	big array[2];
+  	big temp;
+  	big result;
+	big a;
+  	big b;
+ 	file testfile;
+ 	testfile = "./input_file.bdf";    
+ 	
+	a= 124356721.0*123565612345.0;
+	b= 124356721.0*1235656312365.0;
+ 	
+ 	output>>gcd(a,b);
+ 	outfileopen testfile;
+	output >> a >> testfile;
+	output >> b >> testfile;
+	outfileclose testfile;	
+ 	
+ 	infileopen testfile;   
+ 	input<<array[0]<<testfile;
+  	input<<array[1]<<testfile;
+  	infileclose testfile;
+  
+ 	 output>>array[0];
+ 	 output>>array[1];
+  
+  	if(array[0]>array[1]){
+  	  temp = array[1];
+  	  array[0]=array[1];
+  	  array[1]=temp;
+ 	 };
+ 	 result=gcd(array[0],array[1]);
+  	output>>result;
+  	output(6)>>result;
+ 	return;           
+}

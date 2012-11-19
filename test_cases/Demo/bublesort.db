@@ -1,0 +1,38 @@
+big data[20];
+
+void bubbleSort(){
+	small i;
+	small j;
+	big tmp;
+	for(j=1; j < 20; j = j + 1){
+		for(i = 0; i < 20 - j; i = i + 1){
+			if(data[i] > data[i+1]){
+				tmp = data[i];
+				data[i] = data[i+1];
+				data[i+1] = tmp;
+			};
+		};
+	};
+	return;
+}
+
+void main(){
+	small m;
+	file inputFile;
+	file outputFile;
+	inputFile = "./input_file.bdf";
+	outputFile = "./output_file.bdf";
+	infileopen inputFile;
+	for(m = 0; m < 20; m = m+1){
+		input << data[m] << inputFile;
+	};
+	infileclose inputFile;
+	bubbleSort();
+	outfileopen outputFile;
+	for(m = 0; m < 20; m = m + 1){
+		output >> data[m] >> outputFile;
+	};
+	outfileclose outputFile;
+	return;
+	
+}

@@ -1,0 +1,183 @@
+import java_cup.runtime.*;
+
+/**//* Preliminaries to set up and use the scanner.  */
+parser code {: public static Node parseResult; :}
+init with {: scanner.init();              :};
+scan with {: return getScanner().next_token(); :};
+
+/**//* Terminals (tokens returned by the scanner). */
+terminal String UMINUS,BIG,BOOL,ELSE,FILE,INFILEOPEN,INFILECLOSE,OUTFILEOPEN,OUTFILECLOSE,FOR,IF,INPUT,OUTPUT,RETURN,SMALL,VOID,FILEINPUT,FILEOUTPUT,IDENTIFIER,big,file,PLUS,MINUS,TIMES,DIVIDE,MOD,LEFT_BRKT,RIGHT_BRKT,ASSIGN,EQUAL,GTR,LESS,GTR_EQ,LESS_EQ,NOT_EQ,OR,AND,NOT,LEFT_PAREN,RIGHT_PAREN,SEMI,COMMA,LEFT_BRACE,RIGHT_BRACE,small,T,F;
+
+/**//* Non terminals */
+non terminal Node program,declaration_list,declaration,var_declaration,var_declaration_tail,fun_declaration,type,params,param_list,param,local_var_declaration,statement_list,statement,block,if_stmt,for_stmt,return_stmt,expression,file_stmt,assign_stmt,i_stmt,o_stmt,relop,additive_expression,term,factor,var,call,addop,mulop,args,arg_list;
+
+/**//* Precedences */
+precedence left ASSIGN;
+precedence left COMMA;
+precedence left OR;
+precedence left AND;
+precedence right NOT;
+precedence left EQUAL, NOT_EQ;
+precedence left GTR,LESS,GTR_EQ,LESS_EQ;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE, MOD;
+precedence right UMINUS;
+precedence left LEFT_PAREN,LEFT_BRKT,LEFT_BRACE;
+
+
+
+/* The grammar */
+program ::= declaration_list:d  																			{: RESULT = new ProgramNode(d); parser.parseResult = RESULT; :} 
+          ;
+		   
+declaration_list ::= declaration_list:dl declaration:d 														{: RESULT = new DeclarationListNode(dl, d);:} 
+                   | declaration:d 																			{: RESULT = new DeclarationListNode(d);:}
+				   ;
+				   
+declaration ::= var_declaration:v																			{: RESULT = new DeclarationNode(v);:}
+	          | fun_declaration:f																			{: RESULT = new DeclarationNode(f);:}
+			  ;
+			  
+var_declaration ::= type:t IDENTIFIER:i var_declaration_tail:v												{: RESULT = new VarDeclarationNode(t, i, v);:}
+                  ;
+
+var_declaration_tail ::= SEMI 																				{: RESULT = new VarDeclarationTailNode(); :}
+		               | LEFT_BRKT small:s RIGHT_BRKT SEMI													{: RESULT = new VarDeclarationTailNode(s); :}
+				       ;
+
+type ::= BIG 																								{: RESULT = new TypeNode("BIG");:}
+	   | SMALL 																								{: RESULT = new TypeNode("SMALL");:}
+	   | FILE  																								{: RESULT = new TypeNode("FILE");:}
+	   | BOOL  																								{: RESULT = new TypeNode("BOOL");:}
+	   ;
+	   
+fun_declaration ::= type:t IDENTIFIER:i LEFT_PAREN params:p RIGHT_PAREN block:b  							{: RESULT = new FunDeclarationNode(t,p,b,i);  :} 
+				  | VOID IDENTIFIER:i LEFT_PAREN params:p RIGHT_PAREN block:b  								{: RESULT = new FunDeclarationNode(p,b,i); :} 
+                  ;
+			  
+params ::= param_list:p   																					{: RESULT = new ParamsNode(p); :}
+	     | /*empty*/	      																				{: RESULT = null; :}
+		 ;
+		 
+param_list ::= param_list:p1 COMMA param:p2																	{: RESULT = new ParamListNode(p1,p2); :}
+	         | param:p																						{: RESULT = new ParamListNode(p); :}
+			 ;
+			 
+param ::= type:t IDENTIFIER:i    																			{: RESULT = new ParamNode(t,i); :}
+	    | type:t IDENTIFIER:i LEFT_BRKT small:s RIGHT_BRKT SEMI  											{: RESULT = new ParamNode(t,i,s); :}
+		;
+		
+block ::=LEFT_BRACE local_var_declaration:l statement_list:stmt RIGHT_BRACE 								{: RESULT = new BlockNode(l,stmt); :}
+           ;
+		   
+local_var_declaration ::= local_var_declaration:l var_declaration:vd 										{: RESULT = new LocalVarDeclarationNode(l,vd); :}
+			            | /*empty*/ 																		{: RESULT = null; :}
+						;
+						
+statement_list ::= statement_list:stmts statement:stmt  													{: RESULT = new StatementListNode(stmts,stmt); :}
+		         | /*empty*/ 																				{: RESULT = null; :}
+				 ;
+				 
+statement ::= SEMI 																							{:RESULT = new StatementNode();:}
+            | block: b 																						{:RESULT = new StatementNode("block", b);:} 
+			| if_stmt:i SEMI 																				{:RESULT = new StatementNode("if_stmt", i);:} 
+			| for_stmt:f SEMI 																				{:RESULT = new StatementNode("for_stmt",f);:}
+			| return_stmt:r SEMI																			{:RESULT = new StatementNode("return_stmt",r);:}
+			| expression:e SEMI 																			{:RESULT = new StatementNode("expression", e);:}
+			| file_stmt:f SEMI																				{:RESULT = new StatementNode("file_stmt",f);:}
+			| assign_stmt:a SEMI 																			{:RESULT = new StatementNode("assign_stmt", a);:}
+			;
+
+assign_stmt ::= var:v ASSIGN expression:e																	{:RESULT = new AssignStmtNode(v, e);:}
+              ;
+			  
+file_stmt ::= INFILEOPEN expression:i1																		{:RESULT = new FileStmtNode("INFILEOPEN", i1); :}
+            | INFILECLOSE expression:i1 																	{:RESULT = new FileStmtNode("INFILECLOSE", i1); :}
+			| OUTFILEOPEN expression:i1																		{:RESULT = new FileStmtNode("OUTFILEOPEN", i1); :}
+            | OUTFILECLOSE expression:i1 																	{:RESULT = new FileStmtNode("OUTFILECLOSE", i1); :}
+			| i_stmt:i																						{:RESULT = new FileStmtNode(i);:}
+			| o_stmt:o																						{:RESULT = new FileStmtNode(o);:}
+			;
+
+i_stmt ::= INPUT FILEINPUT expression:i1 FILEINPUT expression:i2											{:RESULT = new IStmtNode(i1, i2);:}
+         ;
+		 
+o_stmt ::= OUTPUT FILEOUTPUT expression:i1											   						{:RESULT = new OStmtNode(i1);:}
+	     | OUTPUT LEFT_PAREN expression:s RIGHT_PAREN FILEOUTPUT expression:i1			    				{:RESULT = new OStmtNode(s, i1, 1);:}
+		 | OUTPUT FILEOUTPUT expression:i1 FILEOUTPUT expression:i2			           						{:RESULT = new OStmtNode(i1, i2, 2);:}
+		 | OUTPUT LEFT_PAREN expression:s RIGHT_PAREN FILEOUTPUT expression:i1  FILEOUTPUT expression:i2	{:RESULT = new OStmtNode(s, i1, i2);:}
+		 ;
+			  
+if_stmt ::= IF LEFT_PAREN expression:e RIGHT_PAREN statement:s												{:RESULT = new If_stmtNode(e, s);:}
+          | IF LEFT_PAREN expression:e RIGHT_PAREN statement:s1 ELSE statement:s2							{:RESULT = new If_stmtNode(e, s1, s2);:}
+		  ;
+			   
+for_stmt ::= FOR LEFT_PAREN assign_stmt:a1 SEMI expression:e SEMI assign_stmt:a2 RIGHT_PAREN statement:s	{:RESULT = new For_stmtNode(a1,e,a2,s);:}
+           ;
+		   
+return_stmt ::= RETURN expression:e																			{:RESULT = new Return_stmtNode(e);:}
+              | RETURN																						{:RESULT = new Return_stmtNode();:}
+              ;
+
+expression ::= expression:e1 OR expression:e2 																{: RESULT = new ExpressionNode("OR", e1,e2);:}
+			 | expression:e1 AND expression:e2 																{: RESULT = new ExpressionNode("AND", e1,e2);:}
+			 | NOT expression:e 																			{: RESULT = new ExpressionNode("NOT", e);:}
+			 | expression:e1 relop:rop expression:e2														{: RESULT = new ExpressionNode(e1,e2,rop);:}
+			 | additive_expression:ae 																		{: RESULT = new ExpressionNode("AE", ae); :}
+			 ;
+			 
+relop ::= GTR 																								{:RESULT = new RelopNode("GTR");:}
+        | LESS  																							{:RESULT = new RelopNode("LESS");:}
+        | EQUAL  																							{:RESULT = new RelopNode("EQUAL");:}
+        | GTR_EQ 																							{:RESULT = new RelopNode("GTR_EQ");:}
+        | LESS_EQ 																							{:RESULT = new RelopNode("LESS_EQ");:}
+        | NOT_EQ 																							{:RESULT = new RelopNode("NOT_EQ");:}
+		;
+		
+additive_expression ::= additive_expression:a addop:aop term:t												{:RESULT = new AdditiveExpressionNode(a, aop, t);:}
+                      | MINUS small:s 																		{:RESULT = new AdditiveExpressionNode("small", s);:}
+					  %prec UMINUS
+					  | MINUS big:b 																		{:RESULT = new AdditiveExpressionNode("big", b);:}
+					  %prec UMINUS
+					  | MINUS var:v 																		{:RESULT = new AdditiveExpressionNode("var", v);:}
+					  %prec UMINUS
+                      | term:t																				{:RESULT = new AdditiveExpressionNode(t);:}
+					  ;
+					  
+term ::= term:t mulop:m factor:f																			{:RESULT = new TermNode(t, m, f);:} 
+       | factor:f																							{:RESULT = new TermNode(f);:}
+	   ;
+	   
+factor ::= var:v 																							{:RESULT = new FactorNode(v,"factor_var");:}       
+         | call:c 																							{:RESULT = new FactorNode(c,"factor_call");:}
+         | big:b 																							{:RESULT = new FactorNode(b,"factor_big");:}
+         | small:s																							{:RESULT = new FactorNode(s,"factor_small");:}
+         | file:f 																							{:RESULT = new FactorNode(f,"factor_file");:}
+         | T 																								{:RESULT = new FactorNode("T", "factor_T");:}
+         | F																								{:RESULT = new FactorNode("F","factor_F");:}
+         | LEFT_PAREN expression:e RIGHT_PAREN																{:RESULT = new FactorNode(e,"factor_expr");:}
+		 ;
+		 
+addop ::= PLUS																								{:RESULT = new AddopNode("ADD");:}
+        | MINUS																								{:RESULT = new AddopNode("MINUS");:}
+		;
+		
+mulop ::= TIMES 																							{:RESULT = new MulopNode("TIMES");:}
+        | DIVIDE																							{:RESULT = new MulopNode("DIVIDE");:}
+        | MOD																								{:RESULT = new MulopNode("MOD");:}
+		;
+		
+var ::= IDENTIFIER:i																						{:RESULT = new VarNode(i);:}
+      | IDENTIFIER:i LEFT_BRKT expression:e RIGHT_BRKT														{:RESULT = new VarNode(i, e);:}
+	  ;
+
+call ::= IDENTIFIER:i LEFT_PAREN args:a RIGHT_PAREN															{:RESULT = new CallNode(i, a);:}
+	   ;
+
+args ::= arg_list:a 																						{:RESULT = new ArgsNode(a); :}
+       | /*empty*/ 																							{:RESULT = null; :}
+	   ;
+	   
+arg_list ::= arg_list:a COMMA expression:e																	{:RESULT = new ArgListNode(a, e);:} 
+           | expression:e																					{:RESULT = new ArgListNode(e);:}
+		   ;

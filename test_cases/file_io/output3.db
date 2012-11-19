@@ -1,0 +1,10 @@
+void main(){
+
+	file f;
+	f = "./input_file.bdf";
+	outfileopen f;
+	output >> 1111 >> f;
+	output >> 1111.0 >> f;
+	outfileclose f;	
+	return;
+}

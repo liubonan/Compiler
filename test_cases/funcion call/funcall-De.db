@@ -1,0 +1,10 @@
+void func(small c){
+	c = c+1;
+	return;
+}
+void main(){
+	small a;
+	a = 1;
+	func(a);
+	return;
+}

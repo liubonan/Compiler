@@ -1,0 +1,17 @@
+void main(){
+	small a;
+	small b;
+	small c;
+	a = 1;
+	b = 2;
+	c = 3;
+	if(a>b){
+		a = b;
+	}
+	else{
+		if(a > c){
+			a = c;
+		};
+	};
+	return;
+}

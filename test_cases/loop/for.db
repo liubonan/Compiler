@@ -1,0 +1,31 @@
+small i;
+big m;
+small a[4];
+big b[4];
+
+
+big gcd( big k ){
+k=1;
+for(i = 1; i<10; i=i+1){
+m=m+1.0;
+};
+m = 1.0;
+i = 0;
+
+return m;
+}
+
+void main(){
+
+big ii;
+big iii;
+small jj;
+b[0]=5.0;
+
+
+
+ii=gcd(b[0]);
+}
+
+
+

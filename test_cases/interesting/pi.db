@@ -1,0 +1,21 @@
+void main(){
+   big a;
+   big b;
+   big c;
+   small i;
+   big count;
+
+   for(i=-29999;i<29999;i=i+1){
+   
+       a = bigRand();
+       b = bigRand();
+       c = (a - 0.5) * (a - 0.5) + (b - 0.5) * (b - 0.5);
+   
+       if(c <= 0.25){
+          count = count + 1.0;
+       };   
+   };
+   
+   output >> count /(59999.0*0.25);  
+
+}

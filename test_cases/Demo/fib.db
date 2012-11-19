@@ -1,0 +1,19 @@
+big f(small n){
+	big result;
+	if(n == 0){
+		return 1.0;
+	}
+	else{
+		if(n == 1){
+			return 1.0;
+		};
+	};
+	result = f(n-1) + f(n-2);
+	return result;
+}
+
+void main(){
+	output >> f(20);
+	return;
+}
+

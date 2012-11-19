@@ -1,0 +1,8 @@
+void main(){
+	small m;
+	big n;
+	
+	m = 2 / 1;
+	n = 1.0 / 2.0;
+	return;
+}
